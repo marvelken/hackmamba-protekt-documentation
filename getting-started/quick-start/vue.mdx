@@ -1,0 +1,153 @@
+---
+title: Vue.js Quickstart
+---
+
+<Steps>
+  <Step title="Create a new Vue.js application">
+    Run the following command to create a new Vue.js application. Replace `my-protekt-app` with your project's name.
+
+    ```bash Terminal
+    npm create vue@latest my-protekt-app -- --typescript --router --pinia
+    ```
+
+  </Step>
+
+  <Step title="Install @protekt/vue">
+    Navigate to your project directory and install the Protekt Vue.js SDK:
+
+    ```bash Terminal
+    cd my-protekt-app
+    npm install @protekt/vue
+    ```
+
+  </Step>
+
+  <Step title="Add environment variables">
+    Create a `.env.local` file in your project root and add your Protekt keys. You can find these in your [Protekt Dashboard](/index).
+
+    ```bash .env.local
+    VITE_PROTEKT_PUBLISHABLE_KEY=pk_test_••••••••••••••••••••••••••••••••••
+    VITE_PROTEKT_DOMAIN=your-app-domain.protekt.dev
+    ```
+
+  </Step>
+
+  <Step title="Configure Protekt plugin">
+    Protekt requires your application to be configured with the Protekt plugin to provide authentication context.
+
+    Update your `src/main.ts` file:
+
+    ```ts src/main.ts
+    import { createApp } from 'vue'
+    import { createPinia } from 'pinia'
+    import { createProtekt } from '@protekt/vue'
+    import App from './App.vue'
+    import router from './router'
+
+    if (!import.meta.env.VITE_PROTEKT_PUBLISHABLE_KEY) {
+      throw new Error('Missing VITE_PROTEKT_PUBLISHABLE_KEY')
+    }
+
+    const protekt = createProtekt({
+      publishableKey: import.meta.env.VITE_PROTEKT_PUBLISHABLE_KEY,
+      domain: import.meta.env.VITE_PROTEKT_DOMAIN
+    })
+
+    const app = createApp(App)
+
+    app.use(createPinia())
+    app.use(router)
+    app.use(protekt)
+
+    app.mount('#app')
+    ```
+
+  </Step>
+
+  <Step title="Add authentication components">
+    Replace the contents of `src/App.vue` with authentication components that allow users to sign in and access their account:
+
+    ```vue src/App.vue
+    <template>
+      <div class="min-h-screen bg-gray-50">
+        <header class="bg-white shadow-sm border-b">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+              <h1 class="text-xl font-semibold text-gray-900">
+                My Protekt App
+              </h1>
+
+              <div class="flex items-center gap-4">
+                <template v-if="!isSignedIn">
+                  <SignInButton class="text-gray-600 hover:text-gray-900">
+                    Sign in
+                  </SignInButton>
+                  <SignUpButton class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    Sign up
+                  </SignUpButton>
+                </template>
+
+                <UserButton v-if="isSignedIn" />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div v-if="!isSignedIn" class="text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
+              Welcome to your secure app
+            </h2>
+            <p class="text-lg text-gray-600 mb-8">
+              Sign up or sign in to get started
+            </p>
+            <SignUpButton class="bg-blue-600 text-white px-8 py-3 rounded-md text-lg hover:bg-blue-700 transition-colors">
+              Get Started
+            </SignUpButton>
+          </div>
+
+          <div v-if="isSignedIn" class="text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">
+              Welcome back!
+            </h2>
+            <p class="text-lg text-gray-600">
+              You're successfully authenticated with Protekt.
+            </p>
+          </div>
+        </main>
+      </div>
+    </template>
+
+    <script setup lang="ts">
+    import { SignInButton, SignUpButton, UserButton, useAuth } from '@protekt/vue'
+
+    const { isSignedIn } = useAuth()
+    </script>
+    ```
+
+  </Step>
+
+  <Step title="Test your integration">
+    Start your development server:
+
+    ```bash Terminal
+    npm run dev
+    ```
+
+    Visit [http://localhost:5173](http://localhost:5173) in your browser. Click "Sign up" to create your first user and test the authentication flow.
+
+  </Step>
+
+</Steps>
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Secure with SMS MFA" icon="shield-check" href="/mfa/sms/sms-configuration">
+    Add an extra layer of security with Protekt's SMS multi-factor authentication 
+  </Card>
+  
+  <Card title="Secure with TOTP MFA" icon="server" href="/mfa/totp/configuration">
+    Add an extra layer of security with Protekt's TOTP multi-factor authentication
+  </Card>
+</CardGroup>

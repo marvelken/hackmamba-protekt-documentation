@@ -1,0 +1,185 @@
+---
+title: Frontend Integration (SMS)
+---
+
+This guide covers the frontend implementation for SMS-based multi-factor authentication. You will create components that allow users to add their phone number, verify it with a one-time code, and manage their SMS settings.
+
+This guide assumes you have already completed the [backend configuration](/mfa/sms/sms-configuration).
+
+## 1. Enrolling a Phone Number
+
+The enrollment flow involves two main actions: sending a code to the user's phone and then verifying that code. The `useMFA` hook from `@protekt/nextjs` provides the functions needed to handle this.
+
+Here is a component that manages the full enrollment process.
+
+**File:** `components/SMSEnrollment.tsx`
+```tsx
+'use client'
+import { useState } from 'react'
+import { useMFA } from '@protekt/nextjs'
+
+export function SMSEnrollment() {
+  const { sendSMSCode, verifySMSCode } = useMFA()
+
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [step, setStep] = useState('enter-phone') // 'enter-phone' | 'verify-code' | 'complete'
+  const [error, setError] = useState('')
+
+  // Step 1: Send a verification code to the user's phone
+  const handleSendCode = async (e) => {
+    e.preventDefault()
+    try {
+      setError('')
+      await sendSMSCode({ phoneNumber })
+      setStep('verify-code')
+    } catch (err) {
+      setError('Invalid phone number. Please check it and try again.')
+    }
+  }
+
+  // Step 2: Verify the code the user received
+  const handleVerifyCode = async (e) => {
+    e.preventDefault()
+    try {
+      setError('')
+      await verifySMSCode({ code: verificationCode })
+      setStep('complete')
+    } catch (err) {
+      setError('Invalid or expired code. Please try again.')
+    }
+  }
+
+  if (step === 'complete') {
+    return (
+      <div>
+        <h3 className="text-lg font-semibold text-green-600">✓ Phone Number Verified</h3>
+        <p className="text-gray-600">SMS authentication is now enabled.</p>
+      </div>
+    )
+  }
+
+  if (step === 'verify-code') {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Verify Your Phone</h3>
+        <p className="text-sm text-gray-600">Enter the 6-digit code we sent to {phoneNumber}.</p>
+        <form onSubmit={handleVerifyCode} className="flex items-end space-x-3">
+          <div>
+            <label htmlFor="code" className="block text-sm font-medium">Verification Code</label>
+            <input
+              id="code"
+              type="text"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              className="border rounded-md px-3 py-2 w-36 text-center text-lg font-mono"
+              placeholder="123456"
+              maxLength={6}
+              required
+            />
+          </div>
+          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-md">Verify</button>
+        </form>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Set Up SMS Authentication</h3>
+      <p className="text-sm text-gray-600">Enter your phone number to receive a verification code.</p>
+      <form onSubmit={handleSendCode} className="flex items-end space-x-3">
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium">Phone Number</label>
+          <input
+            id="phone"
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="border rounded-md px-3 py-2 w-64"
+            placeholder="+1 555-123-4567"
+            required
+          />
+        </div>
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">Send Code</button>
+      </form>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+    </div>
+  )
+}
+```
+
+## 2. Managing SMS in Account Settings
+
+Create a parent component in your security settings page that either shows the enrollment form or, if SMS is already enabled, displays the user's verified phone number and an option to disable it.
+
+**File:** `components/SecuritySettings.tsx`
+```tsx
+'use client'
+import { useUser, useMFA } from '@protekt/nextjs'
+import { SMSEnrollment } from './SMSEnrollment'
+
+function DisableSMS() {
+  const { disableSMS } = useMFA();
+  const handleDisable = async () => {
+    if (window.confirm('Are you sure you want to disable SMS authentication?')) {
+      await disableSMS();
+    }
+  };
+  return <button onClick={handleDisable} className="text-red-600 text-sm font-medium">Disable</button>;
+}
+
+export function SecuritySettings() {
+  const { user } = useUser();
+
+  if (!user) return <div>Loading...</div>;
+
+  return (
+    <div className="border rounded-lg p-6">
+      <h2 className="text-lg font-semibold mb-1">SMS (Text Message)</h2>
+      <p className="text-sm text-gray-500 mb-4">
+        Receive a unique code via text message to log in.
+      </p>
+      
+      {user.isSmsEnabled ? (
+        <div className="flex items-center justify-between bg-green-50 p-4 rounded-md">
+          <div>
+            <p className="font-semibold text-green-800">SMS Authentication is Enabled</p>
+            <p className="text-sm text-green-700">Verified number: {user.maskedPhoneNumber}</p>
+          </div>
+          <DisableSMS />
+        </div>
+      ) : (
+        <SMSEnrollment />
+      )}
+    </div>
+  );
+}
+```
+
+## The User's Journey
+
+By implementing these components, you provide a strong flow for users to secure their accounts with SMS.
+
+<Steps>
+  <Step title="User Enters Phone Number">
+    In their security settings, the user provides their mobile number and requests a verification code.
+
+    ![User enters their phone number into an input field.](/images/sms-step1.png)
+  </Step>
+
+  <Step title="User Verifies Code">
+    The user receives a 6-digit code via SMS and enters it into the application to prove they own the number.
+
+    ![User enters the 6-digit code they received via SMS.](/images/sms-step2.png)
+  </Step>
+
+  <Step title="Confirmation">
+    The UI confirms that SMS authentication is active. The user can now see their verified (masked) number and has the option to disable this method.
+
+    ![A success message confirms that SMS MFA is enabled.](/images/sms-step3.png)
+  </Step>
+</Steps>
+
+You have now successfully integrated a complete SMS MFA enrollment and management flow in your application.

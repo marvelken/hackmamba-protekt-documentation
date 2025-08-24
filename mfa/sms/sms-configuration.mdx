@@ -1,0 +1,81 @@
+---
+title: Configuration (SMS)
+---
+
+Enable SMS-based multi-factor authentication (MFA) to allow users to secure their accounts by verifying a code sent to their mobile phone.
+
+This guide covers configuring SMS MFA in your Protekt dashboard and your application's backend.
+
+## Before You Begin
+
+- You must have an active Protekt account and a configured project.
+- **Using SMS MFA may incur costs** based on your plan and usage. Please review your subscription details.
+
+## Dashboard Configuration
+
+First, enable the SMS Authentication in your Protekt project dashboard.
+
+<Steps>
+  <Step title="Navigate to Multi-Factor Authentication">
+    In your [Protekt Dashboard](/mfa//sms/sms-configuration), go to the **Multi-Factor Authentication** settings page.
+  </Step>
+
+  <Step title="Select SMS Provider">
+    Choose from either Twilio or Amazon SNS.
+    ![Enable SMS MFA](/images/SMS-Configuration.png)
+  </Step>
+
+  <Step title="Enable SMS Authentication">
+    Find the **SMS (Text Message)** option and toggle it to the enabled state.
+    ![Enable SMS MFA](/images/SMS-Settings.png)
+  </Step>
+
+  <Step title="Configure Message Template (Optional)">
+    You can customize the text message sent to users. Use the `{{code}}` placeholder, which will be replaced with the 6-digit verification code.
+
+    **Default Message:** `Your verification code is: {{code}}`
+  </Step>
+
+  <Step title="Save Your Changes">
+    Click **Save Configuration** to apply the new configuration.
+  </Step>
+</Steps>
+
+## Code Configuration
+
+After enabling SMS in the dashboard, configure your application's environment and provider.
+
+### 1. Configure Environment Variables
+Add the following variable to your `.env.local` file to signal that your app is ready for the SMS strategy.
+
+**File:** `.env.local`
+```bash
+# Enable SMS strategy
+PROTEKT_MFA_SMS_ENABLED=true
+```
+
+### 2. Update Your App Provider
+Add `'sms'` to the list of available MFA strategies within your `ProtektProvider`.
+
+**File:** `src/app/layout.tsx` (Next.js App Router) or `pages/_app.tsx` (Pages Router)
+```tsx
+import { ProtektProvider } from '@protekt/nextjs'
+
+export default function App({ children }) {
+  return (
+    <ProtektProvider
+      mfa={{
+        // Add 'sms' to your list of strategies
+        strategies: ['totp', 'sms', 'backup_codes'],
+        required: false // Set to true to enforce MFA for all users
+      }}
+    >
+      {children}
+    </ProtektProvider>
+  )
+}
+```
+
+## Next Steps
+
+🎉 Your application is now configured for SMS MFA! Next, implement the [frontend integration](/mfa/sms/sms-frontend-integration) to allow users to enroll and verify their phone numbers.

@@ -1,97 +1,191 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+mode: "custom"
+title: "Protekt - Enterprise Multi-Factor Authentication"
+description: "Secure your applications with enterprise-grade multi-factor authentication solutions"
 ---
 
-## Setting up
+<div className="px-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
 
-Get your documentation site up and running in minutes.
+<div className="relative w-full flex items-center justify-center min-h-[32rem] overflow-hidden mb-16">
+  
+  {/* Animated gradient background with green theme */}
+  <div
+    className="absolute inset-0"
+    style={{
+      background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.08), rgba(4, 120, 87, 0.1))',
+      backgroundSize: '400% 400%',
+      animation: 'gradientShift 8s ease infinite'
+    }}
+  />
+  
+  {/* Grid pattern overlay */}
+  <div 
+    className="absolute inset-0 opacity-[0.03]"
+    style={{
+      backgroundImage: `
+        linear-gradient(rgba(16, 185, 129, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 185, 129, 0.3) 1px, transparent 1px)
+      `,
+      backgroundSize: '40px 40px'
+    }}
+  />
+  
+  {/* Content */}
+  <div className="relative z-10 text-center px-8 w-full mx-auto">
+    
+    <div className="inline-flex mt-[40px] items-center px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-sm font-medium text-green-600 dark:text-green-400 mb-8 backdrop-blur-sm">
+      <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+      Enterprise Security • Developer Friendly • Easy Integration
+    </div>
+    
+    <h1 className="text-6xl md:text-7xl font-light text-gray-900 dark:text-white mb-6 tracking-tight">
+      <span className="text-green-600 dark:text-green-400 font-medium">Protekt</span>
+    </h1>
+    
+    <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-light mb-8 max-w-3xl mx-auto leading-relaxed">
+      Enterprise-grade <span className="text-green-600 dark:text-green-400 font-medium">multi-factor authentication</span> 
+      that integrates seamlessly with your applications. Secure, scalable, and developer-friendly.
+    </p>
+    
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+      <a 
+        href="getting-started/setting-up-account" 
+        className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg shadow-green-500/25"
+      >
+        Get Started Free
+      </a>
+      <a 
+        href="/getting-started/protekt-overview" 
+        className="px-8 py-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800/50 dark:hover:bg-gray-700/50 text-gray-900 dark:text-white font-medium rounded-lg transition-all duration-200 backdrop-blur-sm border border-gray-300 dark:border-gray-600/30"
+      >
+        View Documentation
+      </a>
+    </div>
+    
+    {/* Security visualization */}
+    <div className="max-w-2xl mb-[30px] mx-auto bg-white/80 dark:bg-gray-900/80 rounded-lg border border-gray-200 dark:border-gray-700/50 backdrop-blur-sm overflow-hidden shadow-2xl">
+      <div className="flex items-center px-4 py-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700/50">
+        <div className="flex space-x-2">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+        </div>
+        <div className="flex-1 text-center text-sm text-gray-600 dark:text-gray-400">Authentication Flow</div>
+      </div>
+      <div className="p-6 space-y-3">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+            <span className="text-green-600 dark:text-green-400 text-sm font-bold">1</span>
+          </div>
+          <span className="text-gray-700 dark:text-gray-300">User enters credentials</span>
+          <div className="flex-1 text-right">
+            <span className="text-green-500">✓</span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+            <span className="text-green-600 dark:text-green-400 text-sm font-bold">2</span>
+          </div>
+          <span className="text-gray-700 dark:text-gray-300">MFA challenge sent</span>
+          <div className="flex-1 text-right">
+            <span className="text-yellow-500 animate-pulse">⏳</span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-gray-500 text-sm font-bold">3</span>
+          </div>
+          <span className="text-gray-400">Verify & grant access</span>
+          <div className="flex-1 text-right">
+            <span className="text-gray-400">⋯</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
 
-## Make it yours
 
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+<CardGroup cols={3}>
+  <Card 
+    title="Enterprise Security" 
+    icon="shield"
   >
-    Edit your docs locally and preview them in real time.
+    SOC 2 compliant with end-to-end encryption, audit logs, and enterprise-grade security controls.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
 
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
+  <Card 
+    title="Developer Friendly" 
     icon="code"
-    href="/essentials/code"
   >
-    Add sample code to demonstrate how to use your product.
+    Simple APIs, comprehensive SDKs, and detailed documentation to integrate MFA in minutes, not days.
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
 
-## Need inspiration?
+  <Card 
+    title="Multiple Auth Methods" 
+    icon="key"
+  >
+    Support for TOTP, SMS, backup codes, and more with flexible configuration options.
+  </Card>
+</CardGroup>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+
+
+<CardGroup cols={2}>
+  <Card title="1. Create Your Account" icon="user-plus" href="getting-started/setting-up-account">
+    Sign up for a free Protekt account and configure your organization settings.
+  </Card>
+  
+  <Card title="2. Integrate MFA" icon="plug" href="mfa/overview">
+    Add multi-factor authentication to your app with our simple integration guide.
+  </Card>
+</CardGroup>
+
+
+
+<div className="text-center mt-[10px] py-12">
+  <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
+    Ready to secure your application with enterprise-grade MFA?
+  </p>
+  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+    <a 
+      href="getting-started/setting-up-account" 
+      className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg shadow-green-500/25"
+    >
+      Start Free Trial
+    </a>
+    <a 
+      href="/getting-started/protekt-overview" 
+      className="px-8 py-3 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium transition-all duration-200"
+    >
+      Read Documentation →
+    </a>
+  </div>
+</div>
+
+</div>
+
+<style jsx global>{`
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 3rem !important;
+    }
+    
+    .hero-search {
+      max-width: 90% !important;
+    }
+  }
+`}</style>

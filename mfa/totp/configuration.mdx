@@ -1,0 +1,116 @@
+---
+title: Configuration(TOTP)
+---
+
+This guide covers the Time-based One Time Password Multi Factor Authentication configuration for your Protekt application. 
+
+## Before You Begin
+- You must have an active [Protekt account](/getting-started/setting-up-account) and a [configured project](/getting-started//quick-start/nextjs).
+
+- Email Verification is required for TOTP. Ensure your Email Verification Flow is configured and enabled before proceeding.
+
+- TOTP is a free MFA method. There are no additional costs for enabling or using authenticator apps with Protekt.
+
+## Dashboard Configuration
+To configure TOTP in your application, you must enable the TOTP Authentication. 
+<Steps>
+  <Step title="Navigate to Multi-Factor Authentication settings">
+    Go to **Multi-Factor Authentication** settings in your [Protekt Dashboard](/mfa/totp/configuration).
+    
+
+  </Step>
+
+  <Step title="Enable Authenticator Apps">
+    Toggle **Authenticator Apps (TOTP)** to enabled.
+    ![TOTP](/images/TOTP-Configuration.png)
+    
+
+  </Step>
+
+  <Step title="Configure time window tolerance">
+    Configure the time window tolerance (default: 30 seconds with 5 intervals), and input your number to test the configuration.
+
+    ![TOTP](/images/interval.png)
+
+  </Step>
+
+  <Step title="Save your changes">
+    Click **Save Changes** to apply the configuration.
+    
+    
+  </Step>
+</Steps>
+
+After enabling TOTP in the dashboard, the next step is to configure your application's environment to communicate with Protekt.
+
+
+## Configure Environment Variables
+In your project, create an `.env.local` file and add this TOTP-specific configuration to the environment:
+**File:** `.env.local`
+
+```bash
+# Enable TOTP strategy
+PROTEKT_MFA_TOTP_ENABLED=true
+
+# Optional: Custom app name for authenticator apps  
+PROTEKT_MFA_APP_NAME="Your App Name"
+
+# Optional: Time window tolerance (1-10, default is 5)
+PROTEKT_MFA_TIME_TOLERANCE=5
+```
+
+## Update Your App Provider
+
+**File:** `src/app/layout.tsx` (Next.js App Router) or `pages/_app.tsx` (Pages Router)
+
+Configure your application to support TOTP authentication:
+
+```tsx
+import { ProtektProvider } from '@protekt/nextjs'
+
+export default function App({ children }) {
+  return (
+    <ProtektProvider
+      mfa={{
+        // Define the MFA strategies you want to enable for your app.
+        // 'backup_codes' are recommended as a fallback.
+        strategies: ['totp', 'backup_codes'],
+
+        // If 'required' is false, MFA is optional for users.
+        // They can choose to enroll from their account settings.
+        required: false
+      }}
+    >
+      {children}
+    </ProtektProvider>
+  )
+}
+```
+
+## Choose Enrollment Pattern
+
+Select when users can enable TOTP authentication by updating your provider configuration:
+
+**Optional during registration:**
+```tsx
+<ProtektProvider mfa={{ required: false, prompt: 'optional' }}>
+```
+
+**Required for all users:**
+```tsx  
+<ProtektProvider mfa={{ required: true, strategies: ['totp'] }}>
+```
+
+## Test Your Configuration
+
+Start your development server and verify TOTP is available:
+
+```bash
+npm run dev
+```
+
+Navigate to your app and check that MFA options appear in user settings or registration flow.
+
+## Next Steps
+
+🎉 Backend configuration complete! Now, follow the [frontend integration guide](/mfa/totp/frontend-integration) to build the user-facing components that allow users to enroll with their authenticator app.

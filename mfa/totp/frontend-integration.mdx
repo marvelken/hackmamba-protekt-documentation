@@ -1,0 +1,245 @@
+---
+title: Frontend Integration(TOTP)
+---
+
+This guide walks you through integrating the frontend components for Time-Based One-Time Password (TOTP) authentication. You'll learn how to allow users to enroll by scanning a QR code and how to let them manage their authenticator app from their account settings.
+
+This guide assumes you have already completed the [backend configuration](/mfa/totp/configuration).
+
+## 1. Enrolling a New Device
+
+To allow users to enable TOTP, you need to create a component that guides them through scanning a QR code and verifying their device. The `useMFA` hook from `@protekt/nextjs` provides the necessary functions to handle this flow.
+
+Here is a complete component that manages the enrollment process.
+
+**File:** `components/TOTPEnrollment.tsx`
+```tsx
+'use client'
+import { useState } from 'react'
+import { useMFA } from '@protekt/nextjs'
+import { QRCodeSVG } from 'qrcode.react'
+
+export function TOTPEnrollment() {
+  const { createTOTP, verifyTOTP } = useMFA()
+  
+  // State to hold the secret and QR code URL from the API
+  const [totpInfo, setTotpInfo] = useState(null)
+  
+  // State for the 6-digit code the user enters
+  const [verificationCode, setVerificationCode] = useState('')
+  
+  // State to track successful setup
+  const [isEnrolled, setIsEnrolled] = useState(false)
+  
+  // Error message state
+  const [error, setError] = useState('')
+
+  // Step 1: Generate the secret and QR code from Protekt
+  const handleGenerate = async () => {
+    try {
+      setError('');
+      const info = await createTOTP();
+      setTotpInfo(info);
+    } catch (err) {
+      setError('Could not start the setup process. Please try again.');
+    }
+  }
+
+  // Step 2: Verify the 6-digit code entered by the user
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    if (!totpInfo) return;
+
+    try {
+      setError('');
+      await verifyTOTP({ 
+        secret: totpInfo.secret,
+        code: verificationCode 
+      });
+      setIsEnrolled(true); // Success!
+    } catch (err) {
+      setError('Invalid verification code. Please check your app and try again.');
+    }
+  }
+
+  // If enrollment is complete, show a success message
+  if (isEnrolled) {
+    return (
+      <div>
+        <h3 className="text-lg font-semibold text-green-600">✓ Setup Complete</h3>
+        <p className="text-gray-600">Your authenticator app is now connected.</p>
+      </div>
+    )
+  }
+
+  // If we have the QR code, show the verification step
+  if (totpInfo) {
+    return (
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold">2. Scan & Verify</h3>
+        <p>Scan the QR code with your authenticator app, then enter the 6-digit code below.</p>
+        
+        <div className="bg-white p-4 rounded-lg border inline-block">
+          <QRCodeSVG value={totpInfo.qrCodeUrl} size={200} />
+        </div>
+
+        <form onSubmit={handleVerify} className="flex items-end space-x-3">
+          <div>
+            <label htmlFor="code" className="block text-sm font-medium">Verification Code</label>
+            <input
+              id="code"
+              type="text"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              className="border rounded-md px-3 py-2 w-36 text-center text-lg font-mono"
+              placeholder="123456"
+              maxLength={6}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
+            disabled={verificationCode.length !== 6}
+          >
+            Verify & Enable
+          </button>
+        </form>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </div>
+    )
+  }
+
+  // This is the initial state, showing the button to start the process
+  return (
+    <div className="space-y-3">
+      <h3 className="text-lg font-semibold">1. Set Up Your Authenticator App</h3>
+      <p className="text-gray-600">
+        Add an extra layer of security to protect your account.
+      </p>
+      <button 
+        onClick={handleGenerate}
+        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+      >
+        Start Setup
+      </button>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+    </div>
+  )
+}
+```
+
+## 2. Managing TOTP in Account Settings
+
+Once a user has enrolled, they need a way to see that TOTP is active and a way to disable it. You can create a settings component that conditionally shows either the enrollment component from above or a "Disable" button.
+
+**File:** `components/SecuritySettings.tsx`
+```tsx
+'use client'
+import { useUser, useMFA } from '@protekt/nextjs'
+import { TOTPEnrollment } from './TOTPEnrollment'
+
+// A small component specifically for the disable action
+function DisableTOTP() {
+  const { disableTOTP } = useMFA();
+  
+  const handleDisable = async () => {
+    // In a real app, you would use a modal dialog for confirmation.
+    const isConfirmed = window.confirm('Are you sure you want to disable the authenticator app?');
+    if (isConfirmed) {
+      try {
+        await disableTOTP();
+        // You might want to refresh user state or show a success message here.
+        alert('TOTP has been disabled.');
+      } catch (error) {
+        alert('Failed to disable TOTP. Please try again.');
+      }
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleDisable}
+      className="bg-red-100 text-red-700 px-4 py-2 rounded-md hover:bg-red-200 text-sm font-medium"
+    >
+      Disable
+    </button>
+  );
+}
+
+
+export function SecuritySettings() {
+  const { user } = useUser();
+
+  // If user data is loading, you can show a placeholder
+  if (!user) {
+    return <div>Loading security settings...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Security Settings</h1>
+      
+      <div className="border rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-1">Authenticator App (TOTP)</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Use an app like Google Authenticator, Authy, or 1Password to generate login codes.
+        </p>
+        
+        {user.isTotpEnabled ? (
+          // If TOTP is already enabled, show the status and a disable button
+          <div className="flex items-center justify-between bg-green-50 p-4 rounded-md">
+            <div>
+              <p className="font-semibold text-green-800">Authenticator App is Enabled</p>
+              <p className="text-sm text-green-700">Your account is protected with an extra layer of security.</p>
+            </div>
+            <DisableTOTP />
+          </div>
+        ) : (
+          // If TOTP is not enabled, show the enrollment component
+          <TOTPEnrollment />
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+## The User's Journey
+
+By implementing the components above, you create a simple and secure experience for your users. Here is the flow they will follow in their account settings.
+
+<Steps>
+  <Step title="User Navigates to Security Settings">
+    The user finds the Two-Factor Authentication section. Since it's not enabled, they see the option to begin the setup process.
+
+    ![User sees the initial setup button in their account settings.](/images/totp-step1.png)
+  </Step>
+
+
+  <Step title="User Sees the Get Started Screen">
+    After clicking on Two-Factor Authentication, the user is presented with an introduction screen.
+![User sees the get started introduction with app recommendations.](/images/totp-step2.png)
+  </Step>
+
+
+  <Step title="User Scans the QR Code">
+    After clicking "Start Setup", a unique QR code is generated. The user scans this with their authenticator app of choice.
+
+    ![A QR code is displayed on the screen for the user to scan.](/images/totp-step3.png)
+  </Step>
+
+  <Step title="User Verifies Their Device">
+    The authenticator app now displays a 6-digit code. The user enters this code on your site to prove they have successfully linked their device.
+
+    ![The user enters the 6-digit code into the verification input field.](/images/totp-step4.png)
+  </Step>
+
+  <Step title="Confirmation">
+    The setup is complete. The UI updates to confirm that the authenticator app is enabled and their account is now secure. From this screen, they can also choose to disable it later.
+
+    ![A success message confirms that TOTP is enabled, with a button to disable it.](/images/totp-step5.png)
+  </Step>
+</Steps>
+
+You have now successfully integrated a complete TOTP enrollment and management flow using Protekt into your application.
