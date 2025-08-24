@@ -28,7 +28,11 @@ To configure TOTP in your application, you must enable the TOTP Authentication.
   </Step>
 
   <Step title="Configure time window tolerance">
-    Configure the time window tolerance (default: 30 seconds with 5 intervals), and input your number to test the configuration.
+    **Time Window Tolerance:** Allows codes from up to 5 time intervals (2.5 minutes) before/after current time to account for clock drift between user device and server. Higher values are more forgiving but less secure.
+    
+    - **Default: 5 intervals** - Accepts codes from 2.5 minutes before/after current time
+    - **Range: 1-10 intervals** - 1 = 30 seconds tolerance, 10 = 5 minutes tolerance
+    - **Recommendation: 5** - Good balance of security and usability
 
     ![TOTP](/images/interval.png)
 
@@ -76,8 +80,9 @@ export default function App({ children }) {
         // 'backup_codes' are recommended as a fallback.
         strategies: ['totp', 'backup_codes'],
 
-        // If 'required' is false, MFA is optional for users.
-        // They can choose to enroll from their account settings.
+        // MFA requirement setting:
+        // required: false - MFA is optional, users choose to enable it (recommended for most apps)
+        // required: true - All users must enable MFA after registration (high-security applications)
         required: false
       }}
     >
@@ -91,15 +96,21 @@ export default function App({ children }) {
 
 Select when users can enable TOTP authentication by updating your provider configuration:
 
-**Optional during registration:**
+**Optional MFA (Recommended for most applications):**
 ```tsx
 <ProtektProvider mfa={{ required: false, prompt: 'optional' }}>
 ```
+- Users can enable MFA from their account settings
+- No forced enrollment during registration
+- Good for consumer applications and gradual security rollouts
 
-**Required for all users:**
+**Required MFA (High-security applications):**
 ```tsx  
 <ProtektProvider mfa={{ required: true, strategies: ['totp'] }}>
 ```
+- All users must enable MFA immediately after registration
+- Blocks access until MFA is configured
+- Ideal for financial, or sensitive data applications
 
 ## Test Your Configuration
 
