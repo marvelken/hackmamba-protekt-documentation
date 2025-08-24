@@ -73,19 +73,19 @@
   "logo": {
     "light": "/logo/animatedLogo.svg",
     "dark": "/logo/animatedLogo.svg",
-    "href": "https://protekt.dev/"
+    "href": "https://marvel-abb9e1a7.mintlify.app/"
   },
   "navbar": {
     "links": [
       {
         "label": "Login",
-        "href": "https://app.protekt.dev/"
+        "href": "https://marvel-abb9e1a7.mintlify.app/"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Get Started",
-      "href": "https://app.protekt.dev/signup"
+      "href": "hhttps://marvel-abb9e1a7.mintlify.app/"
     }
   },
   "footer": {
